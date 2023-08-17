@@ -14,14 +14,14 @@ class Particle:
         self.weight = weight
 
 # Initialize particle list
-num_particles = 3
+num_particles = 2
 particles = [Particle(np.random.random(), np.random.random(), 0.01 * (np.random.random() - 0.5), 0.01 * (np.random.random() - 0.5), np.random.uniform(0.1, 2.0)) for _ in range(num_particles)]
 
 # Initialize Pygame
 pygame.init()
 
 # Set window dimensions
-width, height = 800, 600
+width, height = 1000 , 800
 
 # Create a windowed mode window and set display flags
 display = (width, height)
@@ -64,13 +64,12 @@ while True:
             particle.vx *= -1
         if particle.y <= 0 or particle.y >= 1:
             particle.vy *= -1
-
+            
     # Draw particles as points using OpenGL
     glPointSize(3)
     glBegin(GL_POINTS)
     for particle in particles:
-        glVertex2f(particle.x, particle.y)
+        glVertex2f(particle.x * 2 - 1, particle.y * 2 - 1)  # Adjust coordinates to match OpenGL range
     glEnd()
-
     pygame.display.flip()
     pygame.time.wait(100)
