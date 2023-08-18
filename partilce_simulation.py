@@ -72,4 +72,4 @@ while True:
         glVertex2f(particle.x * 2 - 1, particle.y * 2 - 1)  # Adjust coordinates to match OpenGL range
     glEnd()
     pygame.display.flip()
-    pygame.time.wait(100)
+    pygame.time.wait(80)
