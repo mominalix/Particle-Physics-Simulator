@@ -18,9 +18,10 @@ class Particle:
 
 # Initialize particle list
 num_particles = 2
-particles = [Particle(np.random.random(), np.random.random(), np.random.random(),
-                      0.01 * (np.random.random() - 0.5), 0.01 * (np.random.random() - 0.5), 0.01 * (np.random.random() - 0.5),
-                      np.random.uniform(0.1, 2.0)) for _ in range(num_particles)]
+particles = [Particle(np.random.random(), np.random.random(), np.random.random(), # Positions
+                      #0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2),  # Velocities
+                      0.001,0.001,0.001,
+                      np.random.uniform(0.1, 2.0)) for _ in range(num_particles)] # Weights
 
 # Initialize Pygame
 pygame.init()
@@ -115,6 +116,20 @@ while True:
         glVertex3f(particle.x, particle.y, particle.z)
     glEnd()
 
+
+    # Draw grid boundary
+    glLineWidth(1)  # Adjust line width here
+    glColor3f(0.5, 0.5, 0.5)  # Set color to gray
+    glBegin(GL_LINES)
+    for i in range(-2, 3):  # Draw lines along x, y, and z axes
+        glVertex3f(i, -2, -2)
+        glVertex3f(i, -2, 2)
+        glVertex3f(i, -2, -2)
+        glVertex3f(i, 2, -2)
+        glVertex3f(-2, -2, i)
+        glVertex3f(2, -2, i)
+    glEnd()
+    
     # Draw axis lines
     glBegin(GL_LINES)
     glColor3f(1, 0, 0)  # Red X-axis
