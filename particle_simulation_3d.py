@@ -4,7 +4,8 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
-
+# Initialize a list to store particle's previous positions
+first_particle_trace = []
 # Particle class to store particle properties
 class Particle:
     def __init__(self, x, y, z, vx, vy, vz, weight):
@@ -17,11 +18,10 @@ class Particle:
         self.weight = weight
 
 # Initialize particle list
-num_particles = 2
+num_particles = 30
 particles = [Particle(np.random.random(), np.random.random(), np.random.random(), # Positions
-                      #0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2),  # Velocities
-                      0.001,0.001,0.001,
-                      np.random.uniform(0.1, 2.0)) for _ in range(num_particles)] # Weights
+                      0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2),  # Velocities
+                      np.random.uniform(0.1, 4.0)) for _ in range(num_particles)] # Weights
 
 # Initialize Pygame
 pygame.init()
@@ -38,6 +38,28 @@ pygame.mouse.set_visible(True)  # Hide the mouse cursor
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
 gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
+camera_z = -20
+
+# Default camera position
+default_camera_z = -5
+
+# Camera transition speed
+camera_transition_speed = 0.1
+
+# Rotation transition speed
+rotation_transition_speed = 0.01
+
+
+# Default rotation angles
+default_rotate_x, default_rotate_y = 0, 0
+angle_x,angle_y=0,0
+
+# Initialize transitioning variable
+transitioning_camera = False
+transitioning_rotation = False
+
+# Target rotation angles
+target_rotate_x, target_rotate_y = 0, 0
 
 # Move the camera back
 glMatrixMode(GL_MODELVIEW)
@@ -45,7 +67,7 @@ glTranslatef(0.0, 0.0, -5)
 
 # Variables for mouse interaction
 prev_mouse_x, prev_mouse_y = 0, 0
-rotate_x, rotate_y = 0, 0
+rotate_x, rotate_y = 95, 0
 dragging = False  # Flag to indicate if mouse dragging is active
 
 # Main simulation loop
@@ -59,22 +81,129 @@ while True:
             if event.button == 1:  # Left mouse button
                 prev_mouse_x, prev_mouse_y = pygame.mouse.get_pos()
                 dragging = True
+            
+            # Zoom in
+            elif event.button == 4:  # Scroll up
+                camera_z += 0.5
+
+            # Zoom out
+            elif event.button == 5:  # Scroll down
+                camera_z -= 0.5
 
         if event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:  # Left mouse button
                 dragging = False
-                rotate_x, rotate_y = 0, 0  # Reset rotation angles
 
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_r:  # Press 'r' key
+                transitioning_camera = True
+                transitioning_rotation = True
+                target_camera_z = default_camera_z
+                target_rotate_x = 0
+                target_rotate_y = 0
 
     if dragging:  # Perform camera rotation only when dragging
         mouse_x, mouse_y = pygame.mouse.get_pos()
         delta_x = mouse_x - prev_mouse_x
         delta_y = mouse_y - prev_mouse_y
-        rotate_x += delta_y * 0.01  # Adjust the sensitivity here
-        rotate_y += delta_x * 0.01
-        prev_mouse_x, prev_mouse_y = mouse_x, mouse_y
+        
+        # Update rotation angles within the range of -pi to +pi radians
+        rotate_x = np.clip(delta_y * 0.05, -np.pi, np.pi)
+        rotate_y = np.clip(delta_x * 0.05, -np.pi, np.pi)
+        angle_x += rotate_x
+        angle_y += rotate_y
 
+        # Reset Angles to 0 when limit crossed
+        if rotate_x==np.pi or rotate_x==-np.pi:
+            rotate_x=0
+        if rotate_y==np.pi or rotate_y==-np.pi:
+            rotate_y=0
+        prev_mouse_x, prev_mouse_y = mouse_x, mouse_y
+        # Apply rotation based on mouse movement
+        if (delta_y!=0 or delta_x!=0):
+            glRotatef(rotate_x, 1, 0, 0)
+            glRotatef(rotate_y, 0, 1, 0)
+        
+    print( angle_y,angle_x)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    # Camera transition
+    if transitioning_camera:
+        if abs(camera_z - target_camera_z) < camera_transition_speed:
+            camera_z = target_camera_z
+            transitioning_camera = False
+        elif camera_z < target_camera_z:
+            camera_z += camera_transition_speed
+        else:
+            camera_z -= camera_transition_speed
+        
+
+    # Rotation transition
+    if transitioning_rotation:
+        glRotatef(-angle_x , 1, 0, 0)
+        glRotatef(-angle_y, 0, 1, 0)
+        transitioning_rotation = False
+        angle_x, angle_y=0,0
+        # if (rotate_x - target_rotate_x) < rotation_transition_speed and (rotate_y - target_rotate_y) < rotation_transition_speed:
+        #     glRotatef(-rotate_x, 1, 0, 0)
+        #     glRotatef(-rotate_y, 0, 1, 0)
+        #     rotate_x = target_rotate_x
+        #     rotate_y = target_rotate_y
+        #     transitioning_rotation = False
+        # else:
+        #     pass
+            # rotate_x += -rotate_x * rotation_transition_speed
+            # rotate_y += -rotate_y * rotation_transition_speed
+            # angle_x += np.clip(-angle_x * rotation_transition_speed, -np.pi, np.pi)
+            # angle_y += np.clip(-angle_y * rotation_transition_speed, -np.pi, np.pi)
+            #
+            # rotate_x = np.clip(rotate_x + delta_y * 0.01, -np.pi, np.pi)
+            # rotate_y = np.clip(rotate_y + delta_x * 0.01, -np.pi, np.pi)
+            # Apply rotation based on mouse movement
+            
+    # Set perspective projection with zoom
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
+    glTranslatef(0.0, 0.0, camera_z)  # Apply zoom
+
+   # Draw grid boundary
+    glLineWidth(1)  # Adjust line width here
+    glColor3f(0.2, 0.2, 0.2)  # Set color to gray
+    glBegin(GL_LINES)
+    for i in range(-5, 6):
+        glVertex3f(i, -5, -5)
+        glVertex3f(i, -5, 5)
+        glVertex3f(i, -5, -5)
+        glVertex3f(i, 5, -5)
+        glVertex3f(-5, -5, i)
+        glVertex3f(5, -5, i)
+        
+        glVertex3f(i, 5, 5)  # Draw lines on the top face
+        glVertex3f(i, -5, 5)
+        glVertex3f(i, 5, 5)
+        glVertex3f(i, 5, -5)
+
+        glVertex3f(5, i, 5)  # Draw lines on the right face
+        glVertex3f(-5, i, 5)
+        glVertex3f(5, i, 5)
+        glVertex3f(5, i, -5)
+    glEnd()
+
+    # Draw axis lines
+    glBegin(GL_LINES)
+    glColor3f(1, 0, 0)  # Red X-axis
+    glVertex3f(0, 0, 0)
+    glVertex3f(1, 0, 0)
+    glColor3f(0, 1, 0)  # Green Y-axis
+    glVertex3f(0, 0, 0)
+    glVertex3f(0, 1, 0)
+    glColor3f(0, 0, 1)  # Blue Z-axis
+    glVertex3f(0, 0, 0)
+    glVertex3f(0, 0, 1)
+    glEnd()
+
+    # Switch back to model view matrix
+    glMatrixMode(GL_MODELVIEW)
 
     # Gravitational Effects
     G = 0.0005  # Gravitational constant
@@ -93,59 +222,47 @@ while True:
                 particle1.vx += force * np.cos(angle) / particle1.weight
                 particle1.vy += force * np.sin(angle) / particle1.weight
                 particle1.vz += force * np.sin(angle_z) / particle1.weight
-
+    print(particles[1].x)
     # Update particle positions and velocities
-    for particle in particles:
+    for particle_index,particle in enumerate(particles):
         particle.x += particle.vx
         particle.y += particle.vy
         particle.z += particle.vz
 
         # Bounce off borders
-        if particle.x <= -2 or particle.x >= 2:
+        if particle.x <= -5 or particle.x >= 5:
             particle.vx *= -1
-        if particle.y <= -2 or particle.y >= 2:
+        if particle.y <= -5 or particle.y >= 5:
             particle.vy *= -1
-        if particle.z <= -2 or particle.z >= 2:
+        if particle.z <= -5 or particle.z >= 5:
             particle.vz *= -1
-            
-    # Draw particles as points using OpenGL
-    glPointSize(5)  # Adjust point size here
-    glColor3f(1, 1, 1)
-    glBegin(GL_POINTS)
+        # Update particle's trace positions
+        if particle_index == 0:
+            if len(first_particle_trace) >= 1000:  # Limit the number of trace points
+                first_particle_trace.pop(0)
+            first_particle_trace.append((particle.x, particle.y, particle.z))
+
+
+    # Draw particles as spheres
     for particle in particles:
-        glVertex3f(particle.x, particle.y, particle.z)
-    glEnd()
+        glPushMatrix()
+        glTranslatef(particle.x, particle.y, particle.z)
+        glColor3f(0.5*particle.weight,1, 0.2*particle.weight )
+        sphere_radius = particle.weight * 0.1  # Adjust sphere size based on weight
+        sphere_slices = 20
+        sphere_stacks = 20
+        quadric = gluNewQuadric()  # Create a new quadric object
+        gluSphere(quadric, sphere_radius, sphere_slices, sphere_stacks)  # Render the sphere
+        gluDeleteQuadric(quadric)  # Delete the quadric object
+        glPopMatrix()
 
-
-    # Draw grid boundary
+    # Draw particle trace line
     glLineWidth(1)  # Adjust line width here
-    glColor3f(0.5, 0.5, 0.5)  # Set color to gray
-    glBegin(GL_LINES)
-    for i in range(-2, 3):  # Draw lines along x, y, and z axes
-        glVertex3f(i, -2, -2)
-        glVertex3f(i, -2, 2)
-        glVertex3f(i, -2, -2)
-        glVertex3f(i, 2, -2)
-        glVertex3f(-2, -2, i)
-        glVertex3f(2, -2, i)
+    glColor3f(1, 0, 0)  # Set color to red
+    glBegin(GL_LINE_STRIP)
+    for trace_point in first_particle_trace:
+        glVertex3f(*trace_point)
     glEnd()
-    
-    # Draw axis lines
-    glBegin(GL_LINES)
-    glColor3f(1, 0, 0)  # Red X-axis
-    glVertex3f(0, 0, 0)
-    glVertex3f(1, 0, 0)
-    glColor3f(0, 1, 0)  # Green Y-axis
-    glVertex3f(0, 0, 0)
-    glVertex3f(0, 1, 0)
-    glColor3f(0, 0, 1)  # Blue Z-axis
-    glVertex3f(0, 0, 0)
-    glVertex3f(0, 0, 1)
-    glEnd()
-
-    # Apply rotation based on mouse movement
-    glRotatef(rotate_x, 1, 0, 0)
-    glRotatef(rotate_y, 0, 1, 0)
 
     pygame.display.flip()
     pygame.time.wait(10)
