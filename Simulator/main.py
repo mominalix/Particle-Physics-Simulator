@@ -5,7 +5,7 @@ from physics import PhysicsEngine
 from simulation.simulation_cuda import CudaSimulation
 from simulation.simulation_opencl import OpenCLSimulation
 from simulation.simulation_cpu import CPUSimulation
-from visualization import Visualization
+from visualization.Visualization import Visualization
 from p_logging.p_logging import ParticleLogger
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QComboBox, QLineEdit
