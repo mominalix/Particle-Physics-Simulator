@@ -17,7 +17,8 @@ This repository contains a simple particle physics simulation that demonstrates 
 3. Run the simulation script using the following command:
 
     ```
-    python particle_simulation.py
+    python random_particle_simulation_2d.py
+    python random_particle_simulation_3d.py
     ```
 
 4. The simulation window will open, and you'll see particles moving and interacting with gravitational effects.
