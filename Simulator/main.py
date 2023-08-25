@@ -61,7 +61,7 @@ class ParticleSimulatorApp(QMainWindow):
             simulation = OpenCLSimulation(particles, physics_engine)
         else:
             simulation = CPUSimulation(particles, physics_engine)
-
+        #Print Check
         simulation.simulate()
         visualization = Visualization()
         for particle in particles:

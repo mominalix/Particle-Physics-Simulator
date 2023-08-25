@@ -3,9 +3,7 @@ class ParticleLogger:
         self.log_file = log_file
 
     def log_particle_path(self, particle):
-        # Log the particle's path to the log file
-        pass
+        with open(self.log_file, 'a') as f:
+            f.write(f"Particle: ({particle.x}, {particle.y}, {particle.z})\n")
 
     # Implement other logging methods as needed
-from visualization import Visualization
-from p_logging.p_logging import ParticleLogger

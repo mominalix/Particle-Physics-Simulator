@@ -14,7 +14,7 @@ This repository contains a simple particle physics simulation that demonstrates 
 
 2. Open a terminal or command prompt and navigate to the repository's directory.
 
-3. Run the simulation script using the following command:
+3. Run the simulation script using the one of the following commands:
 
     ```
     python random_particle_simulation_2d.py
