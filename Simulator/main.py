@@ -72,10 +72,14 @@ class ParticleSimulatorApp(QMainWindow):
             logger.log_particle_path(particle)
 
 def main():
-    app = QApplication(sys.argv)
-    window = ParticleSimulatorApp()
-    window.show()
-    sys.exit(app.exec_())
+    try:
+        app = QApplication(sys.argv)
+        window = ParticleSimulatorApp()
+        window.show()
+        sys.exit(app.exec_())
+    except Exception as e:
+        print("An error occurred:", e)
+    
 
 if __name__ == "__main__":
     main()
