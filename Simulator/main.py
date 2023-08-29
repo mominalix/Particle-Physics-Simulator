@@ -44,6 +44,7 @@ class ParticleSimulatorApp(QMainWindow):
         self.setCentralWidget(self.central_widget)
 
     def run_simulation(self):
+        
         prompt = self.scenario_input.text()
         parsed_scenario = extract_scenario(prompt)
 

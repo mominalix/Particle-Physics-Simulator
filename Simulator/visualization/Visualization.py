@@ -22,6 +22,7 @@ class Visualization:
         glColor3f(1, 0, 0)  # Set color to red
         glVertex3f(particle.x, particle.y, particle.z)
         glEnd()
+        print("CHeck")
 
     def render_particles(self, particles):
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -33,4 +34,5 @@ class Visualization:
             glPopMatrix()
             self.draw_particle_trace(particle)
         pygame.display.flip()
+        
         pygame.time.wait(10)
