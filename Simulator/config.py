@@ -1,9 +1,9 @@
 # Configuration settings
 simulation_parameters = {
     'time_step': 0.01,
-    'simulation_duration': 10.0
+    'simulation_duration': 20.0
 }
 
-backend_choices = ['CUDA', 'OpenCL', 'CPU']
+backend_choices = ['CPU','CUDA', 'OpenCL' ]
 
 # Add more configuration options as needed

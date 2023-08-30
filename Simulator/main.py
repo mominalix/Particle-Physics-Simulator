@@ -43,7 +43,7 @@ class ParticleSimulatorApp(QMainWindow):
         self.central_widget.setLayout(layout)
         self.setCentralWidget(self.central_widget)
 
-    def run_simulation(self):
+    def run_simulation(self): 
         
         prompt = self.scenario_input.text()
         parsed_scenario = extract_scenario(prompt)
@@ -62,7 +62,6 @@ class ParticleSimulatorApp(QMainWindow):
             simulation = OpenCLSimulation(particles, physics_engine)
         else:
             simulation = CPUSimulation(particles, physics_engine)
-        #Print Check
         simulation.simulate()
         visualization = Visualization()
         for particle in particles:
@@ -84,3 +83,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

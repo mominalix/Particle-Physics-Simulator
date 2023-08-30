@@ -26,6 +26,10 @@ def parse_response(response_text):
     # Implement your logic to parse the generated text and extract scenario data
     # Return the extracted scenario data as a dictionary
     # Example:
-    json_object = json.loads(input_string)
     print (response_text)
-    return response_text
+    # Write a code below to Convert response_text to a dictionary
+
+    
+    result = json.loads(response_text)
+    print (result)
+    return result
