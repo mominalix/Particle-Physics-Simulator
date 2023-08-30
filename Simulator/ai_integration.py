@@ -1,5 +1,5 @@
 import openai
-
+import json
 # Set your OpenAI API key here
 api_path="C:/Users/FRENZY/Desktop/Github/apikey.txt"
 with open(api_path, 'r') as file:
@@ -16,7 +16,6 @@ def extract_scenario(prompt):
         stop=None,
         temperature=0.7,
     )
-    print(response.choices[0].text)
     # Extract relevant information from the API response\
     parsed_scenario = parse_response(response.choices[0].text)
     return parsed_scenario
@@ -27,5 +26,6 @@ def parse_response(response_text):
     # Implement your logic to parse the generated text and extract scenario data
     # Return the extracted scenario data as a dictionary
     # Example:
+    json_object = json.loads(input_string)
     print (response_text)
     return response_text
