@@ -6,6 +6,7 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 # Initialize a list to store particle's previous positions
 first_particle_trace = []
+
 # Particle class to store particle properties
 class Particle:
     def __init__(self, x, y, z, vx, vy, vz, weight):
