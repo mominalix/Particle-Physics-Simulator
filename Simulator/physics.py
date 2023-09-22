@@ -1,7 +1,7 @@
 class PhysicsEngine:
     def __init__(self):
-        self.gravity = 9.81  # m/s^2, adjust as needed
-        self.air_resistance_coefficient = 0.1  # Adjust as needed
+        self.gravity = 9.81  # m/s^2,  adjustable
+        self.air_resistance_coefficient = 0.1  # Adjustable
 
     def apply_gravity(self, particle):
         particle.vy -= self.gravity  # Apply downward acceleration
