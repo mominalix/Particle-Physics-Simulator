@@ -12,7 +12,7 @@ __kernel void simulate_particles(__global Particle* particles, float time_step) 
     // Retrieve the particle's data
     Particle particle = particles[particle_id];
 
-    // Apply physics calculations
+    // Applying physics calculations
     // Apply gravity (negative acceleration in y direction)
     particle.vy -= 9.81f * time_step;
 
