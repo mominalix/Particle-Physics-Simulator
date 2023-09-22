@@ -30,6 +30,6 @@ def parse_response(response_text):
     # Write a code below to Convert response_text to a dictionary
 
     
-    result = json.loads(response_text)
+    result = response_text.json()
     print (result)
     return result

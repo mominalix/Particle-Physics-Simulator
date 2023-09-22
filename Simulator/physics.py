@@ -17,5 +17,4 @@ class PhysicsEngine:
         # Apply different physics properties to the particle
         self.apply_gravity(particle)
         self.apply_air_resistance(particle)
-
         # You can add more physics properties here

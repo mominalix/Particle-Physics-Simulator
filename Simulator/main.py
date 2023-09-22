@@ -2,7 +2,7 @@ from ai_integration import extract_scenario
 from config import backend_choices
 from particle import Particle
 from physics import PhysicsEngine
-from simulation.simulation_cuda import CudaSimulation
+#from simulation.simulation_cuda import CudaSimulation
 from simulation.simulation_opencl import OpenCLSimulation
 from simulation.simulation_cpu import CPUSimulation
 from visualization.Visualization import Visualization
