@@ -9,7 +9,6 @@ class PhysicsEngine:
     def apply_air_resistance(self, particle):
         # Calculate air resistance force
         air_resistance = -self.air_resistance_coefficient * particle.weight * particle.vy
-
         # Apply air resistance to the particle's velocity
         particle.vy += air_resistance
 
