@@ -1,6 +1,6 @@
 import openai
 import json
-# Set your OpenAI API key here
+# Set your OpenAI API key 
 api_path="C:/Users/FRENZY/Desktop/Github/apikey.txt"
 with open(api_path, 'r') as file:
     # Read the first line
