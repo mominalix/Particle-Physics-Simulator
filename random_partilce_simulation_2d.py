@@ -14,7 +14,7 @@ class Particle:
         self.weight = weight
 
 # Initialize particle list
-num_particles = 2
+num_particles = 5
 particles = [Particle(np.random.random(), np.random.random(), 0.01 * (np.random.random() - 0.5), 0.01 * (np.random.random() - 0.5), np.random.uniform(0.1, 2.0)) for _ in range(num_particles)]
 
 # Initialize Pygame
