@@ -9,6 +9,7 @@ from visualization.Visualization import Visualization
 from p_logging.p_logging import ParticleLogger
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow, QPushButton, QVBoxLayout, QWidget, QLabel, QComboBox, QLineEdit
+import pygame
 
 class ParticleSimulatorApp(QMainWindow):
     def __init__(self):
@@ -45,9 +46,9 @@ class ParticleSimulatorApp(QMainWindow):
 
     def run_simulation(self): 
         
-        prompt = self.scenario_input.text()
-        parsed_scenario = extract_scenario(prompt)
-        #parsed_scenario = {'particles': [{'x': 1.0, 'y': 1.0, 'z': 1.0, 'vx': 0.0, 'vy': 0.0, 'vz': 0.0, 'weight': 1.0}, {'x':0.0, 'y': 0.0, 'z': 0.0, 'vx': 0.0, 'vy': 0.0, 'vz': 0.0, 'weight': 1.0}]}
+        # prompt = self.scenario_input.text()
+        # parsed_scenario = extract_scenario(prompt)
+        parsed_scenario = {'particles': [{'x': 1.0, 'y': 1.0, 'z': 1.0, 'vx': 0.0, 'vy': 0.0, 'vz': 0.0, 'weight': 1.0}, {'x':0.0, 'y': 0.0, 'z': 0.0, 'vx': 0.0, 'vy': 0.0, 'vz': 0.0, 'weight': 1.0}]}
         
         particles = [Particle(**particle_data) for particle_data in parsed_scenario['particles']]
         physics_engine = PhysicsEngine()
@@ -64,10 +65,14 @@ class ParticleSimulatorApp(QMainWindow):
         else:
             simulation = CPUSimulation(particles, physics_engine)
         simulation.simulate()
+        
         visualization = Visualization()
-        for particle in particles:
-            visualization.draw_particle_trace(particle)
-            
+        while True:
+            visualization.render_particles(particles)
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()  # Close Pygame properly
+                    sys.exit()
         
         logger = ParticleLogger("particle_paths.log")
         for particle in particles:
@@ -77,11 +82,8 @@ class ParticleSimulatorApp(QMainWindow):
 def main():
     try:
         app = QApplication(sys.argv)
-        print("--------------")
         window = ParticleSimulatorApp()
-        print("--------------")
         window.show()
-        print("--------------")
         sys.exit(app.exec_())
     except Exception as e:
         print("An error occurred:", e)
