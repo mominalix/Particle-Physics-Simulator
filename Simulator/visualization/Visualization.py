@@ -7,6 +7,7 @@ class Visualization:
     def __init__(self):
         pygame.init()
         self.display = (800, 600)
+        
         pygame.display.set_mode(self.display, pygame.DOUBLEBUF | pygame.OPENGL)
         self.init_opengl()
 
@@ -24,14 +25,18 @@ class Visualization:
         glEnd()
 
     def render_particles(self, particles):
+        
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
         glLoadIdentity()
+        
         for particle in particles:
             glPushMatrix()
             glTranslatef(particle.x, particle.y, particle.z)
             glutSolidSphere(particle.weight * 0.1, 20, 20)  # Adjust sphere size based on weight
             glPopMatrix()
             self.draw_particle_trace(particle)
+            
+        
         pygame.display.flip()
         
         pygame.time.wait(10)

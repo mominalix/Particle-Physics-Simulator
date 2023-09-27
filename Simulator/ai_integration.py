@@ -18,6 +18,9 @@ def extract_scenario(prompt):
     )
     # Extract relevant information from the API response\
     parsed_scenario = parse_response(response.choices[0].text)
+    print('----------------------------------')
+    print(parsed_scenario)
+    print('----------------------------------')
     return parsed_scenario
 
 

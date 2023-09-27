@@ -2,7 +2,7 @@ from ai_integration import extract_scenario
 from config import backend_choices
 from particle import Particle
 from physics import PhysicsEngine
-from simulation.simulation_cuda import CudaSimulation
+#from simulation.simulation_cuda import CudaSimulation
 from simulation.simulation_opencl import OpenCLSimulation
 from simulation.simulation_cpu import CPUSimulation
 from visualization.Visualization import Visualization
@@ -47,7 +47,8 @@ class ParticleSimulatorApp(QMainWindow):
         
         prompt = self.scenario_input.text()
         parsed_scenario = extract_scenario(prompt)
-
+        #parsed_scenario = {'particles': [{'x': 1.0, 'y': 1.0, 'z': 1.0, 'vx': 0.0, 'vy': 0.0, 'vz': 0.0, 'weight': 1.0}, {'x':0.0, 'y': 0.0, 'z': 0.0, 'vx': 0.0, 'vy': 0.0, 'vz': 0.0, 'weight': 1.0}]}
+        
         particles = [Particle(**particle_data) for particle_data in parsed_scenario['particles']]
         physics_engine = PhysicsEngine()
         backend_choice = self.backend_combo.currentText()
@@ -66,16 +67,21 @@ class ParticleSimulatorApp(QMainWindow):
         visualization = Visualization()
         for particle in particles:
             visualization.draw_particle_trace(particle)
-
+            
+        
         logger = ParticleLogger("particle_paths.log")
         for particle in particles:
             logger.log_particle_path(particle)
+        
 
 def main():
     try:
         app = QApplication(sys.argv)
+        print("--------------")
         window = ParticleSimulatorApp()
+        print("--------------")
         window.show()
+        print("--------------")
         sys.exit(app.exec_())
     except Exception as e:
         print("An error occurred:", e)
