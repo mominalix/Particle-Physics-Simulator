@@ -4,6 +4,7 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
+
 # Initialize a list to store particle's previous positions
 first_particle_trace = []
 
@@ -17,12 +18,13 @@ class Particle:
         self.vy = vy
         self.vz = vz
         self.weight = weight
+        self.gravitational_force = [0.0, 0.0, 0.0]  # Initialize gravitational force
 
 # Initialize particle list
-num_particles = 20
-particles = [Particle(np.random.random(), np.random.random(), np.random.random(), # Positions
-                      0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2),  # Velocities
-                      np.random.uniform(1, 5.0)) for _ in range(num_particles)] # Weights
+num_particles = 3
+particles = [Particle(np.random.random(), np.random.random(), np.random.random(), 
+                      0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2),  
+                      np.random.uniform(1, 5.0)) for _ in range(num_particles)]
 
 # Initialize Pygame
 pygame.init()
@@ -50,12 +52,11 @@ camera_transition_speed = 0.1
 # Rotation transition speed
 rotation_transition_speed = 0.01
 
-
 # Default rotation angles
 default_rotate_x, default_rotate_y = 0, 0
-angle_x,angle_y=0,0
+angle_x, angle_y = 0, 0
 
-# Initialize transitioning variable
+# Initialize transitioning variables
 transitioning_camera = False
 transitioning_rotation = False
 
@@ -115,18 +116,18 @@ while True:
         angle_y += rotate_y
 
         # Reset Angles to 0 when limit crossed
-        if rotate_x==np.pi or rotate_x==-np.pi:
-            rotate_x=0
-        if rotate_y==np.pi or rotate_y==-np.pi:
-            rotate_y=0
+        if rotate_x == np.pi or rotate_x == -np.pi:
+            rotate_x = 0
+        if rotate_y == np.pi or rotate_y == -np.pi:
+            rotate_y = 0
         prev_mouse_x, prev_mouse_y = mouse_x, mouse_y
         # Apply rotation based on mouse movement
-        if (delta_y!=0 or delta_x!=0):
+        if delta_y != 0 or delta_x != 0:
             glRotatef(rotate_x, 1, 0, 0)
             glRotatef(rotate_y, 0, 1, 0)
         
-    print( angle_y,angle_x)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    
     # Camera transition
     if transitioning_camera:
         if abs(camera_z - target_camera_z) < camera_transition_speed:
@@ -143,31 +144,15 @@ while True:
         glRotatef(-angle_x , 1, 0, 0)
         glRotatef(-angle_y, 0, 1, 0)
         transitioning_rotation = False
-        angle_x, angle_y=0,0
-        # if (rotate_x - target_rotate_x) < rotation_transition_speed and (rotate_y - target_rotate_y) < rotation_transition_speed:
-        #     glRotatef(-rotate_x, 1, 0, 0)
-        #     glRotatef(-rotate_y, 0, 1, 0)
-        #     rotate_x = target_rotate_x
-        #     rotate_y = target_rotate_y
-        #     transitioning_rotation = False
-        # else:
-        #     pass
-            # rotate_x += -rotate_x * rotation_transition_speed
-            # rotate_y += -rotate_y * rotation_transition_speed
-            # angle_x += np.clip(-angle_x * rotation_transition_speed, -np.pi, np.pi)
-            # angle_y += np.clip(-angle_y * rotation_transition_speed, -np.pi, np.pi)
-            #
-            # rotate_x = np.clip(rotate_x + delta_y * 0.01, -np.pi, np.pi)
-            # rotate_y = np.clip(rotate_y + delta_x * 0.01, -np.pi, np.pi)
-            # Apply rotation based on mouse movement
-            
+        angle_x, angle_y = 0, 0
+
     # Set perspective projection with zoom
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     gluPerspective(45, (display[0] / display[1]), 0.1, 50.0)
     glTranslatef(0.0, 0.0, camera_z)  # Apply zoom
 
-   # Draw grid boundary
+    # Draw grid boundary
     glLineWidth(1)  # Adjust line width here
     glColor3f(0.2, 0.2, 0.2)  # Set color to gray
     glBegin(GL_LINES)
@@ -220,12 +205,12 @@ while True:
                 angle = np.arctan2(dy, dx)
                 angle_z = np.arctan2(dz, np.sqrt(dx**2 + dy**2))
                 
-                particle1.vx += force * np.cos(angle) / particle1.weight
-                particle1.vy += force * np.sin(angle) / particle1.weight
-                particle1.vz += force * np.sin(angle_z) / particle1.weight
-    print(particles[1].x)
+                particle1.gravitational_force[0] += force * np.cos(angle)
+                particle1.gravitational_force[1] += force * np.sin(angle)
+                particle1.gravitational_force[2] += force * np.sin(angle_z)
+
     # Update particle positions and velocities
-    for particle_index,particle in enumerate(particles):
+    for particle_index, particle in enumerate(particles):
         particle.x += particle.vx
         particle.y += particle.vy
         particle.z += particle.vz
@@ -237,18 +222,23 @@ while True:
             particle.vy *= -1
         if particle.z <= -5 or particle.z >= 5:
             particle.vz *= -1
+
         # Update particle's trace positions
         if particle_index == 0:
             if len(first_particle_trace) >= 1000:  # Limit the number of trace points
                 first_particle_trace.pop(0)
             first_particle_trace.append((particle.x, particle.y, particle.z))
 
+        # Apply gravitational forces to update velocities
+        particle.vx += particle.gravitational_force[0] / particle.weight
+        particle.vy += particle.gravitational_force[1] / particle.weight
+        particle.vz += particle.gravitational_force[2] / particle.weight
 
     # Draw particles as spheres
     for particle in particles:
         glPushMatrix()
         glTranslatef(particle.x, particle.y, particle.z)
-        glColor3f(0.5*particle.weight,1, 0.2*particle.weight )
+        glColor3f(0.5 * particle.weight, 1, 0.2 * particle.weight)
         sphere_radius = particle.weight * 0.1  # Adjust sphere size based on weight
         sphere_slices = 20
         sphere_stacks = 20
