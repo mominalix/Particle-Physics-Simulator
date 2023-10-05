@@ -21,7 +21,7 @@ class Particle:
         self.gravitational_force = [0.0, 0.0, 0.0]  # Initialize gravitational force
 
 # Initialize particle list
-num_particles = 3
+num_particles = 20
 particles = [Particle(np.random.random(), np.random.random(), np.random.random(), 
                       0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2),  
                       np.random.uniform(1, 5.0)) for _ in range(num_particles)]
@@ -71,6 +71,10 @@ glTranslatef(0.0, 0.0, -5)
 prev_mouse_x, prev_mouse_y = 0, 0
 rotate_x, rotate_y = 95, 0
 dragging = False  # Flag to indicate if mouse dragging is active
+
+# Bounding box dimensions
+box_min = -5
+box_max = 5
 
 # Main simulation loop
 while True:
@@ -157,22 +161,22 @@ while True:
     glColor3f(0.2, 0.2, 0.2)  # Set color to gray
     glBegin(GL_LINES)
     for i in range(-5, 6):
-        glVertex3f(i, -5, -5)
-        glVertex3f(i, -5, 5)
-        glVertex3f(i, -5, -5)
-        glVertex3f(i, 5, -5)
-        glVertex3f(-5, -5, i)
-        glVertex3f(5, -5, i)
+        glVertex3f(i, box_min, box_min)
+        glVertex3f(i, box_min, box_max)
+        glVertex3f(i, box_min, box_min)
+        glVertex3f(i, box_max, box_min)
+        glVertex3f(box_min, box_min, i)
+        glVertex3f(box_max, box_min, i)
         
-        glVertex3f(i, 5, 5)  # Draw lines on the top face
-        glVertex3f(i, -5, 5)
-        glVertex3f(i, 5, 5)
-        glVertex3f(i, 5, -5)
+        glVertex3f(i, box_max, box_max)  # Draw lines on the top face
+        glVertex3f(i, box_min, box_max)
+        glVertex3f(i, box_max, box_max)
+        glVertex3f(i, box_max, box_min)
 
-        glVertex3f(5, i, 5)  # Draw lines on the right face
-        glVertex3f(-5, i, 5)
-        glVertex3f(5, i, 5)
-        glVertex3f(5, i, -5)
+        glVertex3f(box_max, i, box_max)  # Draw lines on the right face
+        glVertex3f(box_min, i, box_max)
+        glVertex3f(box_max, i, box_max)
+        glVertex3f(box_max, i, box_min)
     glEnd()
 
     # Draw axis lines
@@ -216,11 +220,11 @@ while True:
         particle.z += particle.vz
 
         # Bounce off borders
-        if particle.x <= -5 or particle.x >= 5:
+        if particle.x <= box_min or particle.x >= box_max:
             particle.vx *= -1
-        if particle.y <= -5 or particle.y >= 5:
+        if particle.y <= box_min or particle.y >= box_max:
             particle.vy *= -1
-        if particle.z <= -5 or particle.z >= 5:
+        if particle.z <= box_min or particle.z >= box_max:
             particle.vz *= -1
 
         # Update particle's trace positions
@@ -256,4 +260,4 @@ while True:
     glEnd()
 
     pygame.display.flip()
-    pygame.time.wait(10)
+    pygame.time.wait(20)
