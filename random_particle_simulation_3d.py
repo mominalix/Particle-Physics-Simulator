@@ -21,10 +21,10 @@ class Particle:
         self.gravitational_force = [0.0, 0.0, 0.0]  # Initialize gravitational force
 
 # Initialize particle list
-num_particles = 20
-particles = [Particle(np.random.random(), np.random.random(), np.random.random(), 
-                      0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2),  
-                      np.random.uniform(1, 5.0)) for _ in range(num_particles)]
+num_particles = 4
+particles = [Particle(np.random.uniform(-4.5, 4.5), np.random.uniform(-4.5, 4.5), np.random.uniform(-4.5, 4.5),
+                      0.01 * (np.random.random() - 0.2), 0.01 * (np.random.random() - 0.2),
+                      0.01 * (np.random.random() - 0.2), np.random.uniform(1, 5.0)) for _ in range(num_particles)]
 
 # Initialize Pygame
 pygame.init()
@@ -87,7 +87,7 @@ while True:
             if event.button == 1:  # Left mouse button
                 prev_mouse_x, prev_mouse_y = pygame.mouse.get_pos()
                 dragging = True
-            
+
             # Zoom in
             elif event.button == 4:  # Scroll up
                 camera_z += 0.5
@@ -112,7 +112,7 @@ while True:
         mouse_x, mouse_y = pygame.mouse.get_pos()
         delta_x = mouse_x - prev_mouse_x
         delta_y = mouse_y - prev_mouse_y
-        
+
         # Update rotation angles within the range of -pi to +pi radians
         rotate_x = np.clip(delta_y * 0.05, -np.pi, np.pi)
         rotate_y = np.clip(delta_x * 0.05, -np.pi, np.pi)
@@ -129,9 +129,9 @@ while True:
         if delta_y != 0 or delta_x != 0:
             glRotatef(rotate_x, 1, 0, 0)
             glRotatef(rotate_y, 0, 1, 0)
-        
+
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    
+
     # Camera transition
     if transitioning_camera:
         if abs(camera_z - target_camera_z) < camera_transition_speed:
@@ -141,11 +141,10 @@ while True:
             camera_z += camera_transition_speed
         else:
             camera_z -= camera_transition_speed
-        
 
     # Rotation transition
     if transitioning_rotation:
-        glRotatef(-angle_x , 1, 0, 0)
+        glRotatef(-angle_x, 1, 0, 0)
         glRotatef(-angle_y, 0, 1, 0)
         transitioning_rotation = False
         angle_x, angle_y = 0, 0
@@ -167,7 +166,7 @@ while True:
         glVertex3f(i, box_max, box_min)
         glVertex3f(box_min, box_min, i)
         glVertex3f(box_max, box_min, i)
-        
+
         glVertex3f(i, box_max, box_max)  # Draw lines on the top face
         glVertex3f(i, box_min, box_max)
         glVertex3f(i, box_max, box_max)
@@ -204,11 +203,11 @@ while True:
                 dx = particle2.x - particle1.x
                 dy = particle2.y - particle1.y
                 dz = particle2.z - particle1.z
-                distance = max(np.sqrt(dx**2 + dy**2 + dz**2), 0.1)
+                distance = max(np.sqrt(dx ** 2 + dy ** 2 + dz ** 2), 0.1)
                 force = (G * particle1.weight * particle2.weight) / (distance ** 2)
                 angle = np.arctan2(dy, dx)
-                angle_z = np.arctan2(dz, np.sqrt(dx**2 + dy**2))
-                
+                angle_z = np.arctan2(dz, np.sqrt(dx ** 2 + dy ** 2))
+
                 particle1.gravitational_force[0] += force * np.cos(angle)
                 particle1.gravitational_force[1] += force * np.sin(angle)
                 particle1.gravitational_force[2] += force * np.sin(angle_z)
@@ -219,13 +218,19 @@ while True:
         particle.y += particle.vy
         particle.z += particle.vz
 
-        # Bounce off borders
+        # Reflect particles at the bounding box walls
         if particle.x <= box_min or particle.x >= box_max:
             particle.vx *= -1
+            # Ensure particles stay within the bounding box
+            particle.x = max(box_min, min(particle.x, box_max))
         if particle.y <= box_min or particle.y >= box_max:
             particle.vy *= -1
+            # Ensure particles stay within the bounding box
+            particle.y = max(box_min, min(particle.y, box_max))
         if particle.z <= box_min or particle.z >= box_max:
             particle.vz *= -1
+            # Ensure particles stay within the bounding box
+            particle.z = max(box_min, min(particle.z, box_max))
 
         # Update particle's trace positions
         if particle_index == 0:
